@@ -1,3 +1,22 @@
+// Basic Mesh Network Setup
+// Task 1: Follow the guide to initialize your M5StickC devices into a mesh network. Ensure each device can join the network and communicate with others.
+
+// Task 2: Modify the example code to send a simple "Hello from M5StickC [ID]" message from each device, where [ID] is the ID to uniquely identify each M5StickC in the network. Make sure the MESH_SSID and MESH_PASSWORD are as follows so that everyone joins the 'same' mesh network:
+
+// #define   MESH_SSID       "csc2106meshy"
+// #define   MESH_PASSWORD   "meshpotatoes"
+// #define   MESH_PORT       5555
+// Task 3: Implement functionality to display received messages on the M5StickC's screen.
+// Advanced Tasks (Not For Submission)
+// Once you have the basic mesh network up and running, challenge yourself with the following advanced exercise (hint are available here):
+
+// Custom Message Routing Protocol: Modify your code to implement a custom message routing protocol. Your protocol should include message priority handling, where messages tagged as "High Priority" are processed before others in the network queue. You can implement this in user code and do not need to modify the library directly.
+
+// Step 1: Understand the library's message handling mechanism by reviewing the Painless Mesh library source code.
+// Step 2: Design a simple priority scheme for messages (e.g., High, Medium, Low).
+// Step 3: Implement the priority handling in the message routing function.
+// Step 4: Test your custom protocol by sending messages with different priorities and observing the order in which they are processed. You might want to try this in your project grouping.
+
 #include <painlessMesh.h>                 // Include PainlessMesh library for wireless mesh networking
 #include <M5StickCPlus.h>                // Include M5StickC Plus library for hardware support
 

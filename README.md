@@ -1,87 +1,202 @@
 # iot
 IoT Test
 
+# IoT
+IoT Test
+
 # CSC2106 Labs Cheatsheet
 
 ## 1. REpresentational State Transfer (REST)
 
-- **Definition**: REST is an architectural style for designing networked applications, relying on stateless communication and standard HTTP methods.&#8203;:contentReference[oaicite:0]{index=0}
+- **Definition**: REST is an architectural style for designing networked applications, relying on stateless communication and standard HTTP methods.
 
 - **Key Characteristics**:
-  - **Statelessness**: :contentReference[oaicite:1]{index=1}&#8203;:contentReference[oaicite:2]{index=2}
-  - **Client-Server Architecture**: :contentReference[oaicite:3]{index=3}&#8203;:contentReference[oaicite:4]{index=4}
-  - **Uniform Interface**: :contentReference[oaicite:5]{index=5}&#8203;:contentReference[oaicite:6]{index=6}
+  - **Statelessness**: Each request from client to server must contain all information to understand and process the request.
+  - **Client-Server Architecture**: The client and server are independent; UI and data storage are separated.
+  - **Uniform Interface**: Uses standard methods like HTTP verbs for communication, making the API accessible and predictable.
+
+Stateless communication, HTTP-based. Useful for exposing sensors or actuator APIs. Easily testable using Postman, browser, curl, etc.
 
 - **Common HTTP Methods**:
-  - `GET`: :contentReference[oaicite:7]{index=7}&#8203;:contentReference[oaicite:8]{index=8}
-  - `POST`: :contentReference[oaicite:9]{index=9}&#8203;:contentReference[oaicite:10]{index=10}
-  - `PUT`: :contentReference[oaicite:11]{index=11}&#8203;:contentReference[oaicite:12]{index=12}
-  - `DELETE`: :contentReference[oaicite:13]{index=13}&#8203;:contentReference[oaicite:14]{index=14}
+  - `GET`: Retrieve data from the server.
+  - `POST`: Send new data to the server.
+  - `PUT`: Update existing data on the server.
+  - `DELETE`: Remove data from the server.
 
-- **Usage in IoT**: :contentReference[oaicite:15]{index=15}&#8203;:contentReference[oaicite:16]{index=16}
+- **Usage in IoT**: Allows devices to exchange data using web standards like HTTP and JSON.
+
+-
+```
+// Setup WiFi
+WiFi.begin(ssid, password);
+server.begin();
+
+// Route setup
+server.on("/temp/", handle_TempResponse);
+server.on("/led/1", handle_LedOn);
+
+// Sample JSON response
+void handle_TempResponse() {
+  String response = "{ \"temperature\": " + String(temp, 2) + " }";
+  server.send(200, "application/json", response);
+}
+
+```
 
 ## 2. Bluetooth Low Energy (BLE)
 
-- **Definition**: :contentReference[oaicite:17]{index=17}&#8203;:contentReference[oaicite:18]{index=18}
+- **Definition**: BLE is a low-power wireless communication protocol used for short-range communication, part of the Bluetooth 4.0 standard.
 
 - **Key Features**:
-  - **Low Energy Consumption**: :contentReference[oaicite:19]{index=19}&#8203;:contentReference[oaicite:20]{index=20}
-  - **Operating Frequency**: :contentReference[oaicite:21]{index=21}&#8203;:contentReference[oaicite:22]{index=22}
-  - **Network Topologies**: :contentReference[oaicite:23]{index=23}&#8203;:contentReference[oaicite:24]{index=24}
+  - **Low Energy Consumption**: Ideal for battery-powered devices, it transmits small amounts of data with minimal power.
+  - **Operating Frequency**: Uses the 2.4 GHz ISM band.
+  - **Network Topologies**: Supports star and mesh topologies for various applications.
+
+BLE is event-based (onNotify, onWrite, onRead).Consists of Peripheral (Server) and Central (Client).
 
 - **BLE vs. Classic Bluetooth**:
-  - **BLE**: :contentReference[oaicite:25]{index=25}&#8203;:contentReference[oaicite:26]{index=26}
-  - **Classic Bluetooth**: :contentReference[oaicite:27]{index=27}&#8203;:contentReference[oaicite:28]{index=28}
+  - **BLE**: Optimized for infrequent data transmission with ultra-low power consumption.
+  - **Classic Bluetooth**: Suitable for continuous data streaming like audio but uses more power.
 
-- **Usage in IoT**: :contentReference[oaicite:29]{index=29}&#8203;:contentReference[oaicite:30]{index=30}
+- **Usage in IoT**: Used in fitness trackers, beacons, smart locks, and sensors to transmit data efficiently.
+
+```
+// Key Code Patterns
+// Server side
+BLECharacteristic tempChar(UUID_TEMP, BLECharacteristic::PROPERTY_NOTIFY);
+tempChar.setValue("25.4");
+tempChar.notify();
+
+// Client side
+temperatureCharacteristic->registerForNotify(callback);
+std::string val = ledCharacteristic->readValue();
+ledCharacteristic->writeValue("1");
+```
+
+```
+//Callback Example
+void temperatureNotifyCallback(BLERemoteCharacteristic* p, uint8_t* pData, size_t len, bool isNotify) {
+  strncpy(tempStr, (char*)pData, len);
+}
+```
 
 ## 3. LoRa (Long Range)
 
-- **Definition**: :contentReference[oaicite:31]{index=31}&#8203;:contentReference[oaicite:32]{index=32}
+- **Definition**: LoRa is a long-range, low-power wireless protocol used to transmit small packets over distances up to several kilometers.
 
 - **Key Characteristics**:
-  - **Long Range**: :contentReference[oaicite:33]{index=33}&#8203;:contentReference[oaicite:34]{index=34}
-  - **Low Power**: :contentReference[oaicite:35]{index=35}&#8203;:contentReference[oaicite:36]{index=36}
-  - **Operates in License-Free ISM Bands**: :contentReference[oaicite:37]{index=37}&#8203;:contentReference[oaicite:38]{index=38}
+  - **Long Range**: Coverage in rural areas can reach up to 15-20 km.
+  - **Low Power**: Devices can operate on batteries for years.
+  - **Operates in License-Free ISM Bands**: Uses unlicensed frequencies (e.g., 868 MHz, 915 MHz).
 
-- **Network Topology**: :contentReference[oaicite:39]{index=39}&#8203;:contentReference[oaicite:40]{index=40}
+Transmitter → sends message with checksum. Receiver → verifies checksum, sends ACK
 
-- **Usage in IoT**: :contentReference[oaicite:41]{index=41}&#8203;:contentReference[oaicite:42]{index=42}
+- **Network Topology**: Typically uses a star topology in LoRaWAN; also supports point-to-point and mesh configurations.
+
+- **Usage in IoT**: Common in agriculture, environmental monitoring, and smart cities for long-distance sensor communication.
+
+```
+// Checksum
+uint8_t computeChecksum(uint8_t* data, uint8_t length) {
+  uint8_t sum = 0;
+  for (int i = 0; i < length - 1; i++) sum += data[i];
+  return sum;
+}
+
+// Send message with ACK loop
+rf95.send(message, length);
+rf95.waitPacketSent();
+```
+
+```
+if (receiver == myID && checksum == computeChecksum(buf, len)) {
+  sendAck(sender);
+}
+```
 
 ## 4. Message Queue Telemetry Transport (MQTT)
 
-- **Definition**: :contentReference[oaicite:43]{index=43}&#8203;:contentReference[oaicite:44]{index=44}
+- **Definition**: MQTT is a lightweight publish/subscribe messaging protocol designed for low-bandwidth, high-latency networks.
 
 - **Key Components**:
-  - **Broker**: :contentReference[oaicite:45]{index=45}&#8203;:contentReference[oaicite:46]{index=46}
-  - **Client**: :contentReference[oaicite:47]{index=47}&#8203;:contentReference[oaicite:48]{index=48}
-  - **Topic**: :contentReference[oaicite:49]{index=49}&#8203;:contentReference[oaicite:50]{index=50}
+  - **Broker**: Central server that routes messages between publishers and subscribers.
+  - **Client**: Devices that publish data to or subscribe to topics.
+  - **Topic**: String identifier used to categorize messages.
+
+Requires a broker (e.g., Mosquitto). Clients subscribe and publish to topics
 
 - **Quality of Service (QoS) Levels**:
-  - `0`: :contentReference[oaicite:51]{index=51}&#8203;:contentReference[oaicite:52]{index=52}
-  - `1`: :contentReference[oaicite:53]{index=53}&#8203;:contentReference[oaicite:54]{index=54}
-  - `2`: :contentReference[oaicite:55]{index=55}&#8203;:contentReference[oaicite:56]{index=56}
+  - `0`: At most once – no acknowledgment.
+  - `1`: At least once – message may be duplicated.
+  - `2`: Exactly once – ensures message is received once and only once.
 
-- **Usage in IoT**: :contentReference[oaicite:57]{index=57}&#8203;:contentReference[oaicite:58]{index=58}
+- **Usage in IoT**: Perfect for real-time telemetry data in resource-constrained environments.
+
+```
+// Setup MQTT
+client.setServer(mqtt_server, 1883);
+client.setCallback(callback);
+
+// Publish and Subscribe
+client.publish("M5StackLab4", "TRUE");
+client.subscribe("M5StackLab4");
+```
+
+```
+// Callback Handler
+void callback(char* topic, byte* payload, unsigned int length) {
+  String msg = "";
+  for (int i = 0; i < length; i++) msg += (char)payload[i];
+
+  if (msg == "TRUE") digitalWrite(10, LOW);
+}
+```
 
 ## 5. Wireless Mesh Networks
 
-- **Definition**: :contentReference[oaicite:59]{index=59}&#8203;:contentReference[oaicite:60]{index=60}
+- **Definition**: A network topology where each node relays data for the network, enabling multiple pathways for data to travel.
 
 - **Key Features**:
-  - **Self-Healing**: :contentReference[oaicite:61]{index=61}&#8203;:contentReference[oaicite:62]{index=62}
-  - **Scalability**: :contentReference[oaicite:63]{index=63}&#8203;:contentReference[oaicite:64]{index=64}
-  - **Decentralized**: :contentReference[oaicite:65]{index=65}&#8203;:contentReference[oaicite:66]{index=66}
+  - **Self-Healing**: Automatically reroutes around failed nodes.
+  - **Scalability**: Easy to add more nodes without performance drops.
+  - **Decentralized**: No central authority is required for communication.
 
-- **Usage in IoT**: :contentReference[oaicite:67]{index=67}&#8203;:contentReference[oaicite:68]{index=68}
+Supports auto-routing, fault tolerance. Useful in unstructured or mobile IoT networks
+
+- **Usage in IoT**: Used in home automation, industrial control, and disaster recovery where connectivity may vary.
+
+```
+// Init mesh
+mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT);
+mesh.onReceive(&receivedCallback);
+
+// Message broadcast
+mesh.sendBroadcast("0|Emergency!");
+```
+
+```
+// Priority Queue Processing
+if (!highPriorityQueue.empty()) {
+  show(highPriorityQueue.front());
+  highPriorityQueue.pop_front();
+}
+```
 
 ## 6. M5StickC Plus
 
-- **Definition**: :contentReference[oaicite:69]{index=69}&#8203;:contentReference[oaicite:70]{index=70}
+- **Definition**: A compact ESP32-based IoT development board with a screen, battery, and various peripherals.
 
 - **Key Features**:
-  - **Display**: :contentReference[oaicite:71]{index=71}&#8203;:contentReference[oaicite:72]{index=72}
-  - **Sensors**: :contentReference[oaicite:73]{index=73}&#8203;:contentReference[oaicite:74]{index=74}
-  - **Battery**: :contentReference[oaicite:75]{index=75}&#8203;:contentReference[oaicite:76]{index=76}
+  - **Display**: 1.14” full-color TFT display.
+  - **Sensors**: Built-in IMU, RTC, and infrared transmitter.
+  - **Battery**: 120mAh rechargeable lithium battery.
 
-- **Usage in Labs**: :contentReference[oaicite:77]{index=77}&#8203;:contentReference[oaicite:78]{index=78}
+- **Usage in Labs**: Used in BLE, REST, LoRa, MQTT, and mesh projects as a flexible and portable IoT device.
+
+```
+M5.begin();
+M5.Lcd.print("Hello");
+M5.BtnA.isPressed();
+M5.IMU.getTempData(&temp);
+M5.Beep.tone(100);  // buzzer ON
+```
