@@ -1,0 +1,377 @@
+Lab 1: REST
+1. Introduction to REST
+•
+Definition: REST (Representational State Transfer) is an architectural style for designing networked applications. It relies on stateless communication and standard HTTP methods to interact with resources.
+•
+Importance in IoT: REST enables seamless communication between IoT devices and servers over the internet, allowing for remote control and monitoring. Its uniform interface ensures compatibility across diverse devices, enhancing flexibility and scalability in IoT systems.
+2. Core Principles of REST
+•
+Statelessness: Each client request to the server must contain all the information needed to understand and process the request. The server does not store any client context between requests.
+•
+Client-Server Architecture: Separates the user interface concerns (client) from data storage concerns (server), promoting scalability and flexibility.
+•
+Cacheability: Responses from the server can be explicitly marked as cacheable or non-cacheable to improve performance.
+•
+Uniform Interface: Defines a standard way of interacting with resources using URIs and HTTP methods.
+•
+Layered System: Allows an architecture composed of hierarchical layers by constraining component behavior such that each component cannot see beyond the immediate layer with which they are interacting.
+•
+Code on Demand (Optional): Servers can extend client functionality by transferring executable code.
+3. HTTP Methods and Their Typical Uses in REST
+•
+GET: Retrieve data from the server (e.g., fetch sensor readings).
+•
+POST: Submit data to the server to create a new resource (e.g., register a new device).
+•
+PUT: Update an existing resource or create it if it does not exist (e.g., update device settings).
+•
+DELETE: Remove a resource from the server (e.g., unregister a device).
+4. RESTful Communication in IoT
+•
+Resource Identification: Each resource (e.g., a sensor or actuator) is identified by a unique URI.
+•
+Representation: Resources are represented in various formats such as JSON or XML. JSON is preferred in IoT due to its lightweight nature.
+•
+Stateless Interactions: Each request from a client to a server must contain all the information needed to understand and process the request.
+5. Practical Implementation
+•
+Setting Up the Environment: Ensure your development environment is configured with the necessary tools and libraries to interact with RESTful APIs.
+•
+Making HTTP Requests: Use appropriate libraries or tools to send HTTP requests from your IoT device to the server.
+•
+Handling Responses: Parse the server's responses to extract useful information and handle errors appropriately.
+6. Security Considerations
+•
+Authentication and Authorization: Implement mechanisms to ensure that only authorized clients can access or modify resources.
+•
+Data Encryption: Use HTTPS to encrypt data transmitted between clients and servers, protecting it from interception.
+•
+Input Validation: Validate all inputs to prevent injection attacks and ensure data integrity.
+7. Common Tools and Libraries
+•
+Postman: A popular tool for testing RESTful APIs by sending various types of HTTP requests and analyzing responses.
+•
+cURL: A command-line tool for making HTTP requests, useful for testing and debugging.
+•
+ArduinoHttpClient: A library for Arduino-based devices to make HTTP requests.
+CODE THINGS TO KNOW:
+Libraries used:
+#include <WiFi.h>
+#include <HTTPClient.h>
+Wifi Setup:
+const char* ssid = "WIFI_NAME";
+const char* password = "WIFI_PASSWORD";
+HTTP GET Request
+HTTPClient http;
+http.begin("http://example.com/endpoint");
+int httpResponseCode = http.GET();
+Loop Logic – Reacting to Server Response
+if (payload == "LED ON") {
+digitalWrite(ledPin, HIGH);
+} else if (payload == "LED OFF") {
+digitalWrite(ledPin, LOW);
+}
+Lab 2: BLE
+1. What is BLE?
+•
+Bluetooth Low Energy (BLE) is a wireless communication protocol designed for low power IoT devices.
+•
+Used for short-range communication, especially for sensors and wearables.
+2. BLE Roles
+•
+Peripheral (Server): Advertises data (e.g., heart rate monitor).
+•
+Central (Client): Connects to a peripheral to read/write data (e.g., phone app).
+3. Key BLE Concepts
+Concept
+Description
+Service
+A collection of characteristics (e.g., Heart Rate Service)
+Characteristic
+A single piece of data (e.g., heart rate value)
+UUID
+Unique identifier for services/characteristics
+GATT
+Generic Attribute Profile: protocol for data communication
+Notify
+Server automatically pushes new values to client
+Read/Write
+Client can read from or write to a characteristic
+4. Communication Flow
+1.
+Peripheral advertises its service
+2.
+Central scans for peripherals
+3.
+Central connects to desired peripheral
+4.
+Central reads/writes/gets notifications from characteristics
+BLE Server (BLE_server.ino)
+Key Functionality:
+•
+Creates a BLE server that advertises a custom service.
+•
+Defines a characteristic with PROPERTY_READ and PROPERTY_NOTIFY.
+•
+Sends random data to the characteristic in the loop.
+Code Snippets to Understand:
+BLEDevice::init("BLE_Server");
+•
+Initializes the device as a BLE peripheral named BLE_Server.
+BLEService *pService = pServer->createService(SERVICE_UUID);
+BLECharacteristic *pCharacteristic = pService->createCharacteristic(
+CHARACTERISTIC_UUID,
+BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
+);
+Registers a custom service and characteristic.
+Allows client to read and receive notifications.
+pCharacteristic->setValue(String(randomValue).c_str());
+pCharacteristic->notify();
+Updates the characteristic value and notifies any connected clients.
+BLE Client (BLE_client.ino)
+Key Functionality:
+•
+Scans for BLE peripherals advertising a specific service.
+•
+Connects and reads from the characteristic.
+•
+Displays the value on Serial Monitor.
+Code Snippets to Understand:
+BLEScan* pBLEScan = BLEDevice::getScan();
+BLEScanResults foundDevices = pBLEScan->start(5);
+Scans for BLE devices for 5 seconds.
+BLEClient* pClient = BLEDevice::createClient();
+pClient->connect(foundDevice);
+Creates a BLE central and connects to a discovered peripheral.
+BLERemoteService* pRemoteService = pClient->getService(SERVICE_UUID);
+BLERemoteCharacteristic* pRemoteCharacteristic = pRemoteService->getCharacteristic(CHARACTERISTIC_UUID);
+std::string value = pRemoteCharacteristic->readValue();
+Gets the specific service/characteristic and reads its current value.
+Lab 3: LoRa
+1. What is LoRa?
+•
+LoRa (Long Range) is a low-power, long-range wireless communication technology.
+•
+Used for IoT applications that require devices to send small amounts of data over kilometers.
+2. Key Features
+Feature
+Description
+Low power
+Ideal for battery-powered devices
+Long range
+Up to 10 km in rural, ~2 km in urban
+Low data rate
+Not for video/audio; used for sensor values
+Unlicensed bands
+Typically 433MHz, 868MHz, 915MHz depending on region
+3. LoRa vs WiFi/BLE
+Tech
+Range
+Power
+Use Case
+WiFi
+Medium
+High
+Internet apps
+BLE
+Short
+Low
+Wearables
+LoRa
+Long
+Very Low
+Remote sensors, agriculture, smart cities
+4. LoRa Module Basics
+•
+You often use SX1278/SX1276 LoRa modules with Arduino/ESP32.
+•
+Communication is handled using the SPI protocol.
+•
+Libraries like LoRa.h abstract the lower-level communication.
+CODE INSIGHTS: What to Know From Your Submission
+LoRa Transmitter (LoRa_Tx.ino)
+Goal:
+•
+Periodically send data packets ("Hello X") over LoRa.
+Key Code Concepts
+#include <SPI.h>
+#include <LoRa.h>
+Required libraries for LoRa operation over SPI.
+LoRa.begin(915E6); // or 868E6 depending on region
+Sets LoRa frequency (quiz may ask which band is used).
+LoRa.beginPacket();
+LoRa.print("Hello ");
+LoRa.print(counter++);
+LoRa.endPacket();
+Builds and sends a LoRa packet, counter increments with each packet sent.
+delay(5000);
+Sends a packet every 5 seconds.
+LoRa Receiver (LoRa_Rx.ino)
+Goal:
+•
+Listen continuously for incoming packets.
+•
+Print received data to Serial Monitor.
+Key Code Concepts
+int packetSize = LoRa.parsePacket();
+if (packetSize) {
+while (LoRa.available()) {
+String incoming = LoRa.readString();
+Serial.print(incoming);
+}
+}
+parsePacket() checks for incoming packets, readString() retrieves the packet content.
+Lab 4: MQTT
+1. What is MQTT?
+•
+MQTT (Message Queuing Telemetry Transport) is a lightweight publish-subscribe messaging protocol for IoT.
+•
+Optimized for low-bandwidth, high-latency, or unreliable networks.
+2. Key MQTT Concepts
+Term
+Description
+Broker
+Central server that routes messages between devices (e.g., Mosquitto, HiveMQ)
+Client
+Device/app that connects to the broker to publish or subscribe
+Topic
+Named channel (string) clients use to publish or subscribe (e.g., "sensor/temperature")
+Publish
+Client sends data to a topic
+Subscribe
+Client listens for data on a topic
+QoS (Quality of Service)
+Delivery guarantee level (0 = at most once, 1 = at least once, 2 = exactly once)
+3. How It Works
+•
+Clients connect to a broker over TCP (usually on port 1883).
+•
+Publisher sends messages to a topic → Broker → All subscribers to that topic receive it.
+•
+Supports bi-directional communication (unlike HTTP which is client-server).
+4. MQTT in IoT
+•
+Used for real-time updates (e.g., temperature sensors, smart home).
+•
+Efficient in power and bandwidth → good for constrained devices.
+CODE INSIGHTS: What to Know From MQTT.ino
+Goal of the Code
+•
+Connect ESP32 to WiFi
+•
+Connect to public MQTT broker
+•
+Publish random sensor value to a topic ("esp32/test")
+•
+Receive messages and print them to Serial Monitor
+Key Libraries
+#include <WiFi.h>
+#include <PubSubClient.h>
+•
+WiFi.h: Connect to WiFi
+•
+PubSubClient.h: Lightweight MQTT library
+WiFi & MQTT Setup
+WiFi.begin(ssid, password);
+client.setServer(mqttServer, mqttPort);
+client.setCallback(callback);
+•
+setServer(): Connect to broker (e.g., "broker.hivemq.com").
+•
+setCallback(): Function to handle incoming MQTT messages.
+Publishing Data
+String payload = String(random(0, 100));
+client.publish("esp32/test", payload.c_str());
+•
+Publishes random number to topic "esp32/test".
+Receiving Data
+void callback(char* topic, byte* message, unsigned int length) {
+Serial.print("Message arrived on topic: ");
+Serial.println(topic);
+}
+•
+Triggered when subscribed message is received.
+Main Loop
+if (!client.connected()) {
+reconnect();
+}
+client.loop();
+•
+Maintains MQTT connection and handles incoming/outgoing messages.
+Lab 5: Mesh
+1. What is a Mesh Network?
+•
+A network topology where each node (device) can communicate with others directly or via intermediaries.
+•
+No central router; nodes relay messages = self-healing and robust.
+2. Mesh in IoT
+•
+Used in smart homes, environmental monitoring, industrial IoT, etc.
+•
+Great for covering wide areas with many devices (e.g., 10+ nodes).
+3. ESP-NOW vs Mesh
+Feature
+ESP-NOW
+Mesh
+Range
+Short (~100m)
+Long (multi-hop)
+Topology
+Point-to-point
+Multi-hop
+Centralized?
+Yes
+No
+Use Case
+Device-to-device
+Large IoT grids
+4. Protocols for Mesh
+•
+ESP-MESH (based on ESP-NOW or WiFi)
+•
+Libraries like painlessMesh abstract networking logic
+•
+Nodes can join/leave dynamically
+•
+Communication can be broadcast or targeted
+CODE INSIGHTS: What to Know From Mesh.ino
+Goal of Code
+•
+Set up an ESP32 node in a mesh network
+•
+Send broadcast messages to all other nodes
+•
+Print received messages to Serial Monitor
+Libraries Used
+#include <painlessMesh.h>
+•
+Core library used to implement mesh communication between ESP32 devices.
+Network Configuration
+#define MESH_PREFIX "meshNetwork"
+#define MESH_PASSWORD "meshpassword"
+#define MESH_PORT 5555
+•
+These define your mesh "SSID", password, and communication port.
+Receiving Messages
+void receivedCallback(uint32_t from, String &msg) {
+Serial.printf("Received from %u: %s\n", from, msg.c_str());
+}
+•
+This function is automatically called when any message is received.
+•
+from is the sender's node ID.
+Sending Messages
+mesh.sendBroadcast("Hello Mesh Network!");
+•
+Sends a message to all connected nodes.
+Loop Logic
+void loop() {
+mesh.update();
+}
+•
+mesh.update() must be called regularly to handle network maintenance and message passing.
+Setup Function
+mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT);
+mesh.onReceive(&receivedCallback);
+•
+Initializes the mesh with credentials and registers the message callback.
